@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CodeCraftHub Dashboard</title>
+    <title>CodeCraftHub: Your Learning Management Platform</title>
     <style>
       :root {
         --bg: #f8f7ff;
@@ -167,7 +167,7 @@
       }
 
       .btn-primary {
-        background: var(--primary);
+        background: #8B5CF6;
         color: #fff;
       }
 
@@ -177,7 +177,7 @@
       }
 
       .btn-success {
-        background: var(--success);
+        background: #F59E0B;
         color: #fff;
       }
 
@@ -392,7 +392,7 @@
 
         <div id="form-message" class="message" role="alert" aria-live="polite"></div>
 
-        <form id="course-form">
+        <form id="course-form" onsubmit="handleCreateCourse(event)">
           <div class="form-grid">
             <div class="field">
               <label for="name">Course Name</label>
@@ -435,7 +435,7 @@
             <h2 style="margin: 0 0 4px;">Course List</h2>
             <p style="margin: 0; color: var(--muted);">Courses loaded from <code>http://localhost:5000/api/courses</code></p>
           </div>
-          <button id="refresh-button" class="btn-secondary" type="button">Refresh Courses</button>
+          <button id="refresh-button" class="btn-secondary" type="button" onclick="loadCourses()">Refresh Courses</button>
         </div>
 
         <div id="list-message" class="message" role="alert" aria-live="polite"></div>
@@ -456,12 +456,12 @@
             <h2 id="edit-modal-title">Edit Course</h2>
             <p>Update selected fields and save them back to the API.</p>
           </div>
-          <button id="close-modal-button" class="modal-close" type="button">Close</button>
+          <button id="close-modal-button" class="modal-close" type="button" onclick="closeEditModal()">Close</button>
         </div>
 
         <div id="modal-message" class="message" role="alert" aria-live="polite"></div>
 
-        <form id="edit-form">
+        <form id="edit-form" onsubmit="handleUpdate(event)">
           <input id="edit-id" type="hidden" />
           <div class="form-grid">
             <div class="field">
@@ -598,8 +598,8 @@
                 <div><strong>Created at:</strong> ${formatDate(course.created_at)}</div>
               </div>
               <div class="course-actions">
-                <button class="btn-secondary" type="button" data-action="edit" data-id="${course.id}">Edit</button>
-                <button class="btn-danger" type="button" data-action="delete" data-id="${course.id}">Remove</button>
+                <button class="btn-secondary" type="button" onclick="handleEdit('${String(course.id)}')">Edit</button>
+                <button class="btn-danger" type="button" onclick="handleDelete('${String(course.id)}')">Remove</button>
               </div>
             </article>
           `;
@@ -691,6 +691,10 @@
         modalBackdrop.setAttribute('aria-hidden', 'false');
       }
 
+      function handleEdit(courseId) {
+        openEditModal(Number(courseId));
+      }
+
       function closeEditModal() {
         modalBackdrop.classList.remove('show');
         modalBackdrop.setAttribute('aria-hidden', 'true');
@@ -730,15 +734,20 @@
         }
       }
 
-      async function handleDeleteCourse(courseId) {
-        const course = courses.find((item) => item.id === courseId);
+      async function handleUpdate(event) {
+        await handleEditCourse(event);
+      }
+
+      async function handleDelete(courseId) {
+        const numericCourseId = Number(courseId);
+        const course = courses.find((item) => item.id === numericCourseId);
         const confirmed = window.confirm('Remove "' + (course ? course.name : 'this course') + '"?');
         if (!confirmed) return;
 
         clearMessage(listMessage);
 
         try {
-          await request(API_URL + '/' + courseId, { method: 'DELETE' });
+          await request(API_URL + '/' + numericCourseId, { method: 'DELETE' });
           showMessage(listMessage, 'success', 'Course removed successfully.');
           await loadCourses();
         } catch (error) {
@@ -746,26 +755,9 @@
         }
       }
 
-      courseForm.addEventListener('submit', handleCreateCourse);
-      editForm.addEventListener('submit', handleEditCourse);
-      refreshButton.addEventListener('click', loadCourses);
-      closeModalButton.addEventListener('click', closeEditModal);
-
       modalBackdrop.addEventListener('click', (event) => {
         if (event.target === modalBackdrop) {
           closeEditModal();
-        }
-      });
-
-      courseList.addEventListener('click', (event) => {
-        const button = event.target.closest('button[data-action]');
-        if (!button) return;
-
-        const courseId = Number(button.dataset.id);
-        if (button.dataset.action === 'edit') {
-          openEditModal(courseId);
-        } else if (button.dataset.action === 'delete') {
-          handleDeleteCourse(courseId);
         }
       });
 
@@ -774,6 +766,13 @@
           closeEditModal();
         }
       });
+
+      window.loadCourses = loadCourses;
+      window.handleCreateCourse = handleCreateCourse;
+      window.handleEdit = handleEdit;
+      window.handleUpdate = handleUpdate;
+      window.handleDelete = handleDelete;
+      window.closeEditModal = closeEditModal;
 
       loadCourses();
     </script>
