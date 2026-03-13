@@ -24,6 +24,8 @@ const ALLOWED_STATUSES = ['Not Started', 'In Progress', 'Completed'];
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 /**
  * Ensure the data file exists.

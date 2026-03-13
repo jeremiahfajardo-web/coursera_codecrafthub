@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CodeCraftHub Dashboard</title>
+    <style>
+      :root {
+        --bg: #f8f7ff;
+        --surface: #ffffff;
+        --surface-soft: #f3eeff;
+        --text: #241b3b;
+        --muted: #6b6480;
+        --border: #ddd6fe;
+        --primary: #8b5cf6;
+        --primary-dark: #6d28d9;
+        --success: #f59e0b;
+        --danger: #ef4444;
+        --shadow: 0 18px 45px rgba(76, 29, 149, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      body {
+        margin: 0;
+        font-family: Arial, Helvetica, sans-serif;
+        color: var(--text);
+        background:
+          radial-gradient(circle at top left, rgba(139, 92, 246, 0.18), transparent 30%),
+          radial-gradient(circle at top right, rgba(245, 158, 11, 0.18), transparent 28%),
+          linear-gradient(180deg, #fcfbff 0%, #f4f0ff 100%);
+      }
+
+      .page {
+        width: min(1100px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 32px 0 48px;
+      }
+
+      .hero {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.95), rgba(109, 40, 217, 0.92));
+        color: #fff;
+        border-radius: 24px;
+        padding: 28px;
+        box-shadow: var(--shadow);
+      }
+
+      .hero h1 {
+        margin: 0 0 8px;
+        font-size: clamp(2rem, 4vw, 2.9rem);
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 720px;
+        color: rgba(255, 255, 255, 0.88);
+      }
+
+      .panel {
+        background: var(--surface);
+        border: 1px solid rgba(139, 92, 246, 0.12);
+        border-radius: 22px;
+        box-shadow: var(--shadow);
+        margin-top: 22px;
+        padding: 24px;
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .panel-header h2 {
+        margin: 0;
+        font-size: 1.35rem;
+      }
+
+      .panel-header p {
+        margin: 4px 0 0;
+        color: var(--muted);
+      }
+
+      form {
+        display: grid;
+        gap: 16px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .field.full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-size: 0.94rem;
+        font-weight: 700;
+      }
+
+      input,
+      textarea,
+      select {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: var(--surface-soft);
+        color: var(--text);
+        border-radius: 14px;
+        padding: 12px 14px;
+        font: inherit;
+      }
+
+      input:focus,
+      textarea:focus,
+      select:focus {
+        outline: 2px solid rgba(139, 92, 246, 0.2);
+        border-color: var(--primary);
+      }
+
+      textarea {
+        min-height: 108px;
+        resize: vertical;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 18px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      button:disabled {
+        opacity: 0.6;
+        cursor: wait;
+        transform: none;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn-secondary {
+        background: #ede9fe;
+        color: var(--primary-dark);
+      }
+
+      .btn-success {
+        background: var(--success);
+        color: #fff;
+      }
+
+      .btn-danger {
+        background: var(--danger);
+        color: #fff;
+      }
+
+      .message {
+        display: none;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font-weight: 700;
+      }
+
+      .message.show {
+        display: block;
+      }
+
+      .message.success {
+        background: rgba(245, 158, 11, 0.16);
+        color: #9a6700;
+      }
+
+      .message.error {
+        background: rgba(239, 68, 68, 0.12);
+        color: #b42318;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .status-not-started {
+        background: rgba(107, 114, 128, 0.12);
+        color: #4b5563;
+      }
+
+      .status-in-progress {
+        background: rgba(139, 92, 246, 0.14);
+        color: var(--primary-dark);
+      }
+
+      .status-completed {
+        background: rgba(245, 158, 11, 0.18);
+        color: #9a6700;
+      }
+
+      .course-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 18px;
+      }
+
+      .course-card {
+        border: 1px solid rgba(139, 92, 246, 0.12);
+        border-radius: 20px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbf9ff 100%);
+        padding: 18px;
+      }
+
+      .course-card h3 {
+        margin: 12px 0 8px;
+      }
+
+      .course-card p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .course-meta {
+        display: grid;
+        gap: 8px;
+        margin: 14px 0;
+        font-size: 0.95rem;
+      }
+
+      .course-meta strong {
+        color: var(--text);
+      }
+
+      .course-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 30px 18px;
+        border: 1px dashed var(--border);
+        border-radius: 20px;
+        color: var(--muted);
+      }
+
+      .loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border: 3px solid rgba(139, 92, 246, 0.18);
+        border-top-color: var(--primary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(36, 27, 59, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+      }
+
+      .modal-backdrop.show {
+        display: flex;
+      }
+
+      .modal {
+        width: min(620px, 100%);
+        background: var(--surface);
+        border-radius: 24px;
+        box-shadow: 0 28px 80px rgba(36, 27, 59, 0.3);
+        padding: 24px;
+      }
+
+      .modal h2 {
+        margin-top: 0;
+      }
+
+      .modal-close {
+        background: transparent;
+        color: var(--muted);
+        padding: 8px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @media (max-width: 720px) {
+        .page {
+          width: min(100% - 20px, 1100px);
+          padding-top: 18px;
+        }
+
+        .hero,
+        .panel,
+        .modal {
+          padding: 18px;
+          border-radius: 18px;
+        }
+
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .toolbar,
+        .panel-header,
+        .actions {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .course-actions button {
+          flex: 1 1 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="hero">
+        <h1>CodeCraftHub: Your Learning Management Platform</h1>
+        <p>
+          Manage your learning roadmap from one place. Add courses, update progress,
+          and keep your study timeline on track with live API-powered actions.
+        </p>
+      </header>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div>
+            <h2>Add Course</h2>
+            <p>Create a new course and send it directly to the backend API.</p>
+          </div>
+        </div>
+
+        <div id="form-message" class="message" role="alert" aria-live="polite"></div>
+
+        <form id="course-form">
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">Course Name</label>
+              <input id="name" name="name" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="target_date">Target Date</label>
+              <input id="target_date" name="target_date" type="date" required />
+            </div>
+
+            <div class="field full">
+              <label for="description">Description</label>
+              <textarea id="description" name="description" required></textarea>
+            </div>
+
+            <div class="field">
+              <label for="status">Status</label>
+              <select id="status" name="status" required>
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="submit-button" class="btn-primary" type="submit">Add Course</button>
+            <div id="form-loading" class="loading" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Saving course...</span>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="toolbar">
+          <div>
+            <h2 style="margin: 0 0 4px;">Course List</h2>
+            <p style="margin: 0; color: var(--muted);">Courses loaded from <code>http://localhost:5000/api/courses</code></p>
+          </div>
+          <button id="refresh-button" class="btn-secondary" type="button">Refresh Courses</button>
+        </div>
+
+        <div id="list-message" class="message" role="alert" aria-live="polite"></div>
+
+        <div id="list-loading" class="loading">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Loading courses...</span>
+        </div>
+
+        <div id="course-list" class="course-grid" hidden></div>
+      </section>
+    </div>
+
+    <div id="edit-modal-backdrop" class="modal-backdrop" aria-hidden="true">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+        <div class="panel-header" style="margin-bottom: 12px;">
+          <div>
+            <h2 id="edit-modal-title">Edit Course</h2>
+            <p>Update selected fields and save them back to the API.</p>
+          </div>
+          <button id="close-modal-button" class="modal-close" type="button">Close</button>
+        </div>
+
+        <div id="modal-message" class="message" role="alert" aria-live="polite"></div>
+
+        <form id="edit-form">
+          <input id="edit-id" type="hidden" />
+          <div class="form-grid">
+            <div class="field">
+              <label for="edit-name">Course Name</label>
+              <input id="edit-name" name="name" type="text" required />
+            </div>
+
+            <div class="field">
+              <label for="edit-target-date">Target Date</label>
+              <input id="edit-target-date" name="target_date" type="date" required />
+            </div>
+
+            <div class="field full">
+              <label for="edit-description">Description</label>
+              <textarea id="edit-description" name="description" required></textarea>
+            </div>
+
+            <div class="field">
+              <label for="edit-status">Status</label>
+              <select id="edit-status" name="status" required>
+                <option value="Not Started">Not Started</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="save-edit-button" class="btn-success" type="submit">Save Changes</button>
+            <div id="modal-loading" class="loading" hidden>
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Saving changes...</span>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = 'http://localhost:5000/api/courses';
+      const courseForm = document.getElementById('course-form');
+      const formMessage = document.getElementById('form-message');
+      const formLoading = document.getElementById('form-loading');
+      const submitButton = document.getElementById('submit-button');
+      const listMessage = document.getElementById('list-message');
+      const listLoading = document.getElementById('list-loading');
+      const courseList = document.getElementById('course-list');
+      const refreshButton = document.getElementById('refresh-button');
+      const modalBackdrop = document.getElementById('edit-modal-backdrop');
+      const closeModalButton = document.getElementById('close-modal-button');
+      const editForm = document.getElementById('edit-form');
+      const saveEditButton = document.getElementById('save-edit-button');
+      const modalLoading = document.getElementById('modal-loading');
+      const modalMessage = document.getElementById('modal-message');
+      let courses = [];
+
+      function showMessage(element, type, message) {
+        element.className = 'message show ' + type;
+        element.textContent = message;
+      }
+
+      function clearMessage(element) {
+        element.className = 'message';
+        element.textContent = '';
+      }
+
+      function setLoading(target, isLoading, button) {
+        target.hidden = !isLoading;
+        if (button) {
+          button.disabled = isLoading;
+        }
+      }
+
+      function formatDate(value) {
+        if (!value) return 'Not set';
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleDateString(undefined, {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      }
+
+      function statusClass(status) {
+        if (status === 'Completed') return 'status-pill status-completed';
+        if (status === 'In Progress') return 'status-pill status-in-progress';
+        return 'status-pill status-not-started';
+      }
+
+      function validateCoursePayload(payload) {
+        if (!payload.name.trim()) return 'Course name is required.';
+        if (!payload.description.trim()) return 'Description is required.';
+        if (!payload.target_date) return 'Target date is required.';
+        if (!payload.status) return 'Status is required.';
+        return '';
+      }
+
+      async function request(url, options) {
+        const response = await fetch(url, options);
+        let data = null;
+
+        try {
+          data = await response.json();
+        } catch (error) {
+          data = null;
+        }
+
+        if (!response.ok) {
+          const message = data && data.error ? data.error : 'The request failed. Please try again.';
+          throw new Error(message);
+        }
+
+        return data;
+      }
+
+      function renderCourses() {
+        if (!courses.length) {
+          courseList.hidden = false;
+          courseList.innerHTML = '<div class="empty-state">No courses found yet. Add your first course above.</div>';
+          return;
+        }
+
+        courseList.hidden = false;
+        courseList.innerHTML = courses.map((course) => {
+          return `
+            <article class="course-card">
+              <span class="${statusClass(course.status)}">${course.status}</span>
+              <h3>${escapeHtml(course.name)}</h3>
+              <p>${escapeHtml(course.description)}</p>
+              <div class="course-meta">
+                <div><strong>Course ID:</strong> ${course.id}</div>
+                <div><strong>Target date:</strong> ${formatDate(course.target_date)}</div>
+                <div><strong>Created at:</strong> ${formatDate(course.created_at)}</div>
+              </div>
+              <div class="course-actions">
+                <button class="btn-secondary" type="button" data-action="edit" data-id="${course.id}">Edit</button>
+                <button class="btn-danger" type="button" data-action="delete" data-id="${course.id}">Remove</button>
+              </div>
+            </article>
+          `;
+        }).join('');
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll('&', '&amp;')
+          .replaceAll('<', '&lt;')
+          .replaceAll('>', '&gt;')
+          .replaceAll('"', '&quot;')
+          .replaceAll("'", '&#39;');
+      }
+
+      async function loadCourses() {
+        clearMessage(listMessage);
+        listLoading.hidden = false;
+        courseList.hidden = true;
+
+        try {
+          courses = await request(API_URL, { method: 'GET' });
+          renderCourses();
+        } catch (error) {
+          courseList.hidden = true;
+          showMessage(listMessage, 'error', error.message);
+        } finally {
+          listLoading.hidden = true;
+        }
+      }
+
+      function getFormPayload(form) {
+        const formData = new FormData(form);
+        return {
+          name: String(formData.get('name') || '').trim(),
+          description: String(formData.get('description') || '').trim(),
+          target_date: String(formData.get('target_date') || ''),
+          status: String(formData.get('status') || '')
+        };
+      }
+
+      async function handleCreateCourse(event) {
+        event.preventDefault();
+        clearMessage(formMessage);
+
+        const payload = getFormPayload(courseForm);
+        const validationError = validateCoursePayload(payload);
+
+        if (validationError) {
+          showMessage(formMessage, 'error', validationError);
+          return;
+        }
+
+        setLoading(formLoading, true, submitButton);
+
+        try {
+          await request(API_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          courseForm.reset();
+          courseForm.status.value = 'Not Started';
+          showMessage(formMessage, 'success', 'Course added successfully.');
+          await loadCourses();
+        } catch (error) {
+          showMessage(formMessage, 'error', error.message);
+        } finally {
+          setLoading(formLoading, false, submitButton);
+        }
+      }
+
+      function openEditModal(courseId) {
+        clearMessage(modalMessage);
+        const course = courses.find((item) => item.id === courseId);
+        if (!course) {
+          showMessage(listMessage, 'error', 'Unable to find that course.');
+          return;
+        }
+
+        document.getElementById('edit-id').value = String(course.id);
+        document.getElementById('edit-name').value = course.name;
+        document.getElementById('edit-description').value = course.description;
+        document.getElementById('edit-target-date').value = String(course.target_date || '').slice(0, 10);
+        document.getElementById('edit-status').value = course.status;
+
+        modalBackdrop.classList.add('show');
+        modalBackdrop.setAttribute('aria-hidden', 'false');
+      }
+
+      function closeEditModal() {
+        modalBackdrop.classList.remove('show');
+        modalBackdrop.setAttribute('aria-hidden', 'true');
+        editForm.reset();
+        clearMessage(modalMessage);
+      }
+
+      async function handleEditCourse(event) {
+        event.preventDefault();
+        clearMessage(modalMessage);
+
+        const courseId = document.getElementById('edit-id').value;
+        const payload = getFormPayload(editForm);
+        const validationError = validateCoursePayload(payload);
+
+        if (validationError) {
+          showMessage(modalMessage, 'error', validationError);
+          return;
+        }
+
+        setLoading(modalLoading, true, saveEditButton);
+
+        try {
+          await request(API_URL + '/' + courseId, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          showMessage(listMessage, 'success', 'Course updated successfully.');
+          closeEditModal();
+          await loadCourses();
+        } catch (error) {
+          showMessage(modalMessage, 'error', error.message);
+        } finally {
+          setLoading(modalLoading, false, saveEditButton);
+        }
+      }
+
+      async function handleDeleteCourse(courseId) {
+        const course = courses.find((item) => item.id === courseId);
+        const confirmed = window.confirm('Remove "' + (course ? course.name : 'this course') + '"?');
+        if (!confirmed) return;
+
+        clearMessage(listMessage);
+
+        try {
+          await request(API_URL + '/' + courseId, { method: 'DELETE' });
+          showMessage(listMessage, 'success', 'Course removed successfully.');
+          await loadCourses();
+        } catch (error) {
+          showMessage(listMessage, 'error', error.message);
+        }
+      }
+
+      courseForm.addEventListener('submit', handleCreateCourse);
+      editForm.addEventListener('submit', handleEditCourse);
+      refreshButton.addEventListener('click', loadCourses);
+      closeModalButton.addEventListener('click', closeEditModal);
+
+      modalBackdrop.addEventListener('click', (event) => {
+        if (event.target === modalBackdrop) {
+          closeEditModal();
+        }
+      });
+
+      courseList.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+
+        const courseId = Number(button.dataset.id);
+        if (button.dataset.action === 'edit') {
+          openEditModal(courseId);
+        } else if (button.dataset.action === 'delete') {
+          handleDeleteCourse(courseId);
+        }
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape' && modalBackdrop.classList.contains('show')) {
+          closeEditModal();
+        }
+      });
+
+      loadCourses();
+    </script>
+  </body>
+</html>
